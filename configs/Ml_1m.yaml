@@ -1,0 +1,87 @@
+# general
+gpu_id: 0
+use_gpu: True
+seed: 212
+state: INFO
+reproducibility: True
+data_path: 'dataset/'
+checkpoint_dir: 'saved'
+show_progress: True
+save_dataset: False
+save_dataloaders: False
+
+
+# dataset
+load_col:
+    inter: [user_id, item_id, rating, timestamp]
+    item: ['item_id','movie_title','release_year','class']
+    kg: [ head_id, relation_id, tail_id ]
+    link: [ item_id, entity_id ]
+MAX_ITEM_LIST_LENGTH: 50
+USER_ID_FIELD: user_id
+ITEM_ID_FIELD: item_id
+RATING_FIELD: rating
+HEAD_ENTITY_ID_FIELD: head_id #指定头实体id域
+TAIL_ENTITY_ID_FIELD: tail_id
+RELATION_ID_FIELD: relation_id #指定关系id域
+ENTITY_ID_FIELD: entity_id
+TIME_FIELD: timestamp
+LABEL_FIELD: class
+
+# Filtering
+val_interval: ~
+filter_inter_by_user_or_item: True
+user_inter_num_interval: "[20,inf)"
+item_inter_num_interval: "[5,inf)"
+
+# Model
+n_layers: 3
+n_heads: 4
+hidden_size: 256
+attribute_hidden_size: [64]
+inner_size: 256
+hidden_dropout_prob: 0.5
+attn_dropout_prob: 0.3
+hidden_act: 'gelu'
+layer_norm_eps: 1e-12
+initializer_range: 0.02
+selected_features: ['class']
+pooling_mode: 'sum'
+loss_type: 'CE'
+weight_sharing: 'not'
+fusion_type: 'gate'
+lamdas: [10]
+attribute_predictor: 'linear'
+train_neg_sample_args:           # (dict) Negative sampling configuration for model training.
+  distribution: popularity         # (str) The distribution of negative items.
+  sample_num: 1                 # (int) The sampled num of negative items.
+  alpha: 1.0                    # (float) The power of sampling probability for popularity distribution.
+  dynamic: False                # (bool) Whether to use dynamic negative sampling.
+  candidate_num: 0
+
+# training settings
+epochs: 200
+train_batch_size: 256
+learner: adam
+learning_rate: 0.0001
+eval_step: 2
+stopping_step: 10
+clip_grad_norm: ~
+weight_decay: 0.0
+neg_sampling:
+
+# evaluation settings
+eval_args:
+  split: { 'LS': 'valid_and_test' }
+  group_by: user
+  order: TO
+  mode: full
+
+repeatable: True
+metrics: ["Recall","NDCG","ItemCoverage"]
+topk: [3,5,10,20]
+valid_metric: Recall@20
+valid_metric_bigger: True
+eval_batch_size: 256
+loss_decimal_place: 4
+metric_decimal_place: 4
